@@ -118,12 +118,31 @@ async function apiSaveInvoice(invoiceData) {
 
 // ===== INIT & NAVIGATION =====
 document.addEventListener('DOMContentLoaded', () => {
-    if (checkAuth()) {
-        initApp();
+    const hasVisited = localStorage.getItem('smart_visited_en');
+    if (hasVisited) {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
+        if (checkAuth()) {
+            initApp();
+        }
+    } else {
+        document.getElementById('appContainer').style.display = 'none';
     }
     initNavigation();
     initDateInputs();
 });
+
+function enterApp() {
+    localStorage.setItem('smart_visited_en', 'true');
+    const landing = document.getElementById('landingPage');
+    const app = document.getElementById('appContainer');
+    landing.style.opacity = '0';
+    setTimeout(() => {
+        landing.style.display = 'none';
+        app.style.display = 'flex';
+        checkAuth();
+    }, 300);
+}
 
 function initApp() {
     updateSidebarUser();
