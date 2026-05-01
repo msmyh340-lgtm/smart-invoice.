@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary SEO -->
+    <title>Free Invoice Generator | Smart Invoice</title>
+    <meta name="description" content="Create professional invoices in seconds. Smart invoicing system for freelancers and small businesses. Start for free.">
+    <meta name="keywords" content="free invoice generator, invoice maker, online invoice, billing software, freelance invoice, tax calculation">
+    <meta name="author" content="Smart Invoice">
+    <meta name="robots" content="index, follow">
+
+    <!-- Fonts & Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-page" id="landingPage">
+        <div class="landing-bg"></div>
+        <nav class="landing-nav">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">Smart Invoice</span>
+            </div>
+            <div class="landing-nav-links">
+                <a href="#features">Features</a>
+                <a href="#how">How it works</a>
+                <button class="btn btn-primary" onclick="enterApp()">Start Free</button>
+            </div>
+        </nav>
+        <div class="hero">
+            <div class="hero-badge">🚀 3 Free Invoices Included</div>
+            <h1>Create Professional Invoices<br><span class="gradient-text">In Seconds</span></h1>
+            <p class="hero-desc">The smart invoicing system that helps freelancers and businesses create invoices, calculate taxes, and export PDFs instantly.</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-xl" onclick="enterApp()">⚡ Create Your First Invoice</button>
+                <button class="btn btn-secondary btn-xl" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See Features</button>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><strong>3</strong><span>Free Monthly Invoices</span></div>
+                <div class="hero-stat"><strong>5+</strong><span>Currencies Supported</span></div>
+                <div class="hero-stat"><strong>PDF</strong><span>Instant Export</span></div>
+            </div>
+        </div>
+
+        <section class="features-section" id="features">
+            <h2 class="section-heading">Why Smart Invoice?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Create a complete invoice in under 30 seconds. No complex setup required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧮</div>
+                    <h3>Auto-Calculation</h3>
+                    <p>Taxes, subtotals, and grand totals are calculated instantly. VAT supported.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖨️</div>
+                    <h3>PDF Export</h3>
+                    <p>Export your invoices as beautiful, professional PDFs ready to be sent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💱</div>
+                    <h3>Multi-Currency</h3>
+                    <p>Supports USD, EUR, GBP, AED, and SAR out of the box.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Client Management</h3>
+                    <p>Automatically saves client details for lightning-fast future invoices.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Smart Dashboard</h3>
+                    <p>Track your revenue, pending payments, and overdue invoices in one place.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <p>© 2025 Smart Invoice. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container" id="appContainer" style="display:none;">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span class="logo-text">Smart Invoice</span>
+                </div>
+            </div>
+            <div class="upgrade-banner">
+                <p><span id="freeInvoicesLeft">3</span> free invoices left</p>
+                <button class="btn btn-primary btn-sm" onclick="showUpgradeModal()" style="width:100%; margin-top:8px;">Upgrade to PRO</button>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="create">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-label">New Invoice</span>
+                </li>
+                <li class="nav-item" data-page="invoices">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-label">Invoices</span>
+                </li>
+                <li class="nav-item" data-page="clients">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Clients</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatarSidebar">U</div>
+                    <span class="user-name" id="userNameSidebar">User</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="topbar-title" id="pageTitle">Dashboard</div>
+                <div class="topbar-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showPage('create')">+ Create Invoice</button>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <section class="page active" id="page-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card stat-total">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Revenue</span>
+                            <span class="stat-value" id="totalRevenue">$0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-pending">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Pending</span>
+                            <span class="stat-value" id="pendingAmount">$0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-paid">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Paid</span>
+                            <span class="stat-value" id="paidAmount">$0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-clients">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Clients</span>
+                            <span class="stat-value" id="totalClients">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card recent-invoices-card">
+                        <div class="card-header">
+                            <h2>Recent Invoices</h2>
+                            <button class="btn btn-ghost btn-sm" onclick="showPage('invoices')">View All</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentInvoices" class="invoice-list">
+                                <div class="empty-state">
+                                    <span class="empty-icon">📄</span>
+                                    <p>No invoices yet</p>
+                                    <button class="btn btn-primary btn-sm" onclick="showPage('create')">Create First Invoice</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Invoice -->
+            <section class="page" id="page-create">
+                <div class="create-invoice-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Create New Invoice</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="invoiceForm" onsubmit="return false;">
+                                <div class="form-grid">
+                                    <div class="form-section">
+                                        <h3 class="section-title">Client Information</h3>
+                                        <div class="form-group">
+                                            <label for="clientName">Client Name</label>
+                                            <input type="text" id="clientName" placeholder="e.g., Acme Corp" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clientEmail">Email</label>
+                                            <input type="email" id="clientEmail" placeholder="client@example.com">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clientPhone">Phone <span class="optional-hint">(Optional)</span></label>
+                                            <input type="tel" id="clientPhone" placeholder="+1 (555) 000-0000">
+                                        </div>
+                                    </div>
+                                    <div class="form-section">
+                                        <h3 class="section-title">Invoice Details</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="invoiceDate">Date</label>
+                                                <input type="date" id="invoiceDate">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="dueDate">Due Date</label>
+                                                <input type="date" id="dueDate">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="currency">Currency</label>
+                                            <select id="currency">
+                                                <option value="USD">🇺🇸 USD ($)</option>
+                                                <option value="EUR">🇪🇺 EUR (€)</option>
+                                                <option value="GBP">🇬🇧 GBP (£)</option>
+                                                <option value="AED">🇦🇪 AED (د.إ)</option>
+                                                <option value="SAR">🇸🇦 SAR (ر.س)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section items-section">
+                                    <h3 class="section-title">Line Items</h3>
+                                    <div class="items-table-wrapper">
+                                        <table class="items-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align:left">Description</th>
+                                                    <th style="text-align:left">Qty</th>
+                                                    <th style="text-align:left">Price</th>
+                                                    <th style="text-align:left">Total</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="invoiceItems">
+                                                <!-- Items injected by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="addItem()">+ Add Item</button>
+                                </div>
+
+                                <div class="invoice-summary">
+                                    <div class="summary-row">
+                                        <span>Subtotal</span>
+                                        <span id="subtotal">$0.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <div class="tax-input-group">
+                                            <span>Tax</span>
+                                            <input type="number" id="taxRate" value="0" min="0" max="100" onchange="calculateTotals()">
+                                            <span>%</span>
+                                        </div>
+                                        <span id="taxAmount">$0.00</span>
+                                    </div>
+                                    <div class="summary-row total-row">
+                                        <span>Total</span>
+                                        <span id="grandTotal">$0.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes">Notes (Optional)</label>
+                                    <textarea id="notes" rows="3" placeholder="Add payment instructions or thank you note..."></textarea>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary btn-lg" onclick="saveInvoice()">💾 Save Invoice</button>
+                                    <button type="button" class="btn btn-secondary btn-lg" onclick="saveAndPreview()">👁️ Preview & Export</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Invoices List Page -->
+            <section class="page" id="page-invoices">
+                <div class="page-header">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="paid">Paid</button>
+                        <button class="filter-tab" data-filter="pending">Pending</button>
+                        <button class="filter-tab" data-filter="overdue">Overdue</button>
+                    </div>
+                </div>
+                <div id="invoicesList" class="invoices-grid"></div>
+            </section>
+
+            <!-- Clients Page -->
+            <section class="page" id="page-clients">
+                <div id="clientsList" class="clients-grid"></div>
+            </section>
+
+            <!-- Settings Page -->
+            <section class="page" id="page-settings">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Business Settings</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-section">
+                            <h3 class="section-title">Your Details</h3>
+                            <div class="form-group">
+                                <label for="businessName">Business Name</label>
+                                <input type="text" id="businessName" placeholder="Your Company LLC">
+                            </div>
+                            <div class="form-group">
+                                <label for="businessEmail">Email</label>
+                                <input type="email" id="businessEmail" placeholder="billing@yourcompany.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="businessPhone">Phone</label>
+                                <input type="tel" id="businessPhone" placeholder="+1 (555) 000-0000">
+                            </div>
+                            <div class="form-group">
+                                <label for="businessAddress">Address</label>
+                                <textarea id="businessAddress" rows="2" placeholder="123 Main St..."></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Invoice Preview</h2>
+                <button class="modal-close" onclick="closeModal('previewModal')">✕</button>
+            </div>
+            <div class="modal-body" id="invoicePreview"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="printInvoice()">🖨️ Export PDF / Print</button>
+                <button class="btn btn-secondary" onclick="closeModal('previewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="upgradeModal">
+        <div class="modal" style="max-width: 400px; text-align:center;">
+            <div class="modal-header" style="border:none;">
+                <button class="modal-close" onclick="closeModal('upgradeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <h2 style="font-size: 24px; margin-bottom: 16px;">Upgrade to PRO 🚀</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">You have reached the limit of 3 free invoices. Upgrade to PRO for unlimited invoices, premium templates, and white-labeling.</p>
+                <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius); margin-bottom: 24px;">
+                    <h3 style="color: var(--accent); font-size: 28px;">$9<span style="font-size: 14px; color: var(--text-secondary)">/month</span></h3>
+                </div>
+                <button class="btn btn-primary btn-xl" style="width: 100%;" onclick="alert('Stripe Integration Pending - You will be redirected to checkout')">Upgrade Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
