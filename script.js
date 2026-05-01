@@ -2,7 +2,6 @@
 let currentUser = JSON.parse(localStorage.getItem('smart_user')) || null;
 let token = localStorage.getItem('smart_token') || null;
 let invoices = [];
-let clients = [];
 let settings = JSON.parse(localStorage.getItem('smart_settings_en')) || { name: '', email: '', phone: '', address: '' };
 
 const currencySymbols = { 'USD': '$', 'SAR': 'SAR', 'AED': 'AED', 'EUR': '€', 'GBP': '£' };
@@ -27,6 +26,11 @@ function toggleAuthMode() {
 
 async function handleAuth(e) {
     e.preventDefault();
+    const btn = document.getElementById('authBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Processing...';
+    btn.disabled = true;
+
     const email = document.getElementById('authEmail').value;
     const password = document.getElementById('authPassword').value;
     const name = document.getElementById('authName').value;
@@ -42,7 +46,11 @@ async function handleAuth(e) {
         });
         const data = await res.json();
 
-        if (data.error) return alert(data.error);
+        if (data.error) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return alert(data.error === 'User not found' ? 'This email is not registered. Please click Register below.' : data.error);
+        }
 
         token = data.token;
         currentUser = data.user;
@@ -50,10 +58,13 @@ async function handleAuth(e) {
         localStorage.setItem('smart_user', JSON.stringify(currentUser));
         
         document.getElementById('authModal').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
         initApp();
         showToast('Successfully logged in!');
     } catch (err) {
-        showToast('Connection error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        showToast('Server is waking up... please try again in 10 seconds');
     }
 }
 
@@ -67,9 +78,12 @@ function logout() {
 
 function checkAuth() {
     if (!token) {
+        document.getElementById('appContainer').style.display = 'none';
         document.getElementById('authModal').style.display = 'flex';
         return false;
     }
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'flex';
     return true;
 }
 
@@ -121,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasVisited = localStorage.getItem('smart_visited_en');
     if (hasVisited) {
         document.getElementById('landingPage').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'flex';
         if (checkAuth()) {
             initApp();
         }
@@ -135,11 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function enterApp() {
     localStorage.setItem('smart_visited_en', 'true');
     const landing = document.getElementById('landingPage');
-    const app = document.getElementById('appContainer');
     landing.style.opacity = '0';
     setTimeout(() => {
         landing.style.display = 'none';
-        app.style.display = 'flex';
         checkAuth();
     }, 300);
 }
@@ -152,10 +163,10 @@ function initApp() {
 
 function initNavigation() {
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.onclick = () => {
             const page = item.getAttribute('data-page');
             if (page) showPage(page);
-        });
+        };
     });
 }
 
@@ -204,8 +215,6 @@ function calculateTotals() {
 }
 
 async function saveInvoice() {
-    if (!checkAuth()) return;
-
     const clientName = document.getElementById('clientName').value;
     if (!clientName) return alert('Please enter client name');
 
@@ -240,35 +249,20 @@ async function saveInvoice() {
         document.getElementById('invoiceForm').reset();
         document.getElementById('invoiceItems').innerHTML = '';
         addItem();
-        showPage('invoices');
+        showPage('dashboard');
         return inv;
     }
 }
 
 function saveAndPreview() { 
-    const clientName = document.getElementById('clientName').value;
-    if (!clientName) return alert('Please enter client name');
-    
-    const items = [];
-    document.querySelectorAll('#invoiceItems tr').forEach(tr => {
-        items.push({
-            desc: tr.querySelector('.item-desc').value,
-            qty: parseFloat(tr.querySelector('.item-qty').value),
-            price: parseFloat(tr.querySelector('.item-price').value)
-        });
-    });
-    
     const totals = calculateTotals();
     const inv = {
-        id: 'TEMP-' + Date.now(),
         invoiceNumber: document.getElementById('invoiceNumber').value,
         date: document.getElementById('invoiceDate').value,
         dueDate: document.getElementById('dueDate').value,
         currency: document.getElementById('currency').value,
-        client: { name: clientName, email: document.getElementById('clientEmail').value, phone: document.getElementById('clientPhone').value },
-        items, ...totals,
-        taxRate: parseFloat(document.getElementById('taxRate').value)||0,
-        notes: document.getElementById('notes').value
+        client: { name: document.getElementById('clientName').value, email: document.getElementById('clientEmail').value },
+        items: [], ...totals
     };
     showPreviewModal(inv);
 }
@@ -300,7 +294,6 @@ function updateSidebarUser() {
 // ===== RENDER =====
 function updateDashboardStats() {
     let rev = 0, pend = 0, paid = 0;
-    const today = new Date().toISOString().split('T')[0];
     invoices.forEach(i => {
         if(i.status === 'paid') { paid++; rev += i.grandTotal; }
         else { pend++; }
@@ -339,7 +332,6 @@ function renderAllInvoices() {
             <td><span class="status-badge status-${inv.status}">${inv.status}</span></td>
             <td>
                 <button class="btn-icon" onclick="viewInvoice('${inv.id}')">👁️</button>
-                <button class="btn-icon" onclick="downloadPDF('${inv.id}')">📥</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -364,46 +356,9 @@ function viewInvoice(id) {
 function showPreviewModal(inv) {
     const modal = document.getElementById('previewModal');
     const content = document.getElementById('previewContent');
-    
-    let itemsHtml = inv.items.map(item => `
-        <tr>
-            <td>${item.desc}</td>
-            <td>${item.qty}</td>
-            <td>${formatMoney(item.price, inv.currency)}</td>
-            <td>${formatMoney(item.qty * item.price, inv.currency)}</td>
-        </tr>
-    `).join('');
-
-    content.innerHTML = `
-        <div class="preview-header">
-            <div>
-                <h2>INVOICE</h2>
-                <p>#${inv.invoiceNumber}</p>
-            </div>
-            <div style="text-align:right">
-                <h3>${settings.name}</h3>
-                <p>${settings.address}</p>
-            </div>
-        </div>
-        <hr>
-        <div class="preview-body">
-            <p><strong>Bill To:</strong> ${inv.client.name}</p>
-            <p><strong>Email:</strong> ${inv.client.email}</p>
-            <p><strong>Date:</strong> ${inv.date} | <strong>Due:</strong> ${inv.dueDate}</p>
-            <table class="data-table" style="margin-top:20px;">
-                <thead><tr><th>Desc</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
-                <tbody>${itemsHtml}</tbody>
-            </table>
-            <div style="text-align:right; margin-top:20px;">
-                <p>Subtotal: ${formatMoney(inv.subtotal, inv.currency)}</p>
-                <p>Tax: ${formatMoney(inv.taxAmount, inv.currency)}</p>
-                <h3 style="color:#6366f1">Total: ${formatMoney(inv.grandTotal, inv.currency)}</h3>
-            </div>
-        </div>
-    `;
+    content.innerHTML = `<h3>Invoice #${inv.invoiceNumber}</h3><p>Client: ${inv.client.name}</p><p>Total: ${formatMoney(inv.grandTotal, inv.currency)}</p>`;
     modal.style.display = 'flex';
 }
-
 function hidePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
 
 function showToast(msg) {
@@ -420,10 +375,7 @@ function showToast(msg) {
 
 function initDateInputs() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('invoiceDate').value = today;
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
+    if(document.getElementById('invoiceDate')) document.getElementById('invoiceDate').value = today;
 }
 
 window.onclick = (event) => {
