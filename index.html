@@ -14,6 +14,12 @@
     <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        const API_URL = 'https://smart-invoice-api.onrender.com';
+    </script>
 </head>
 <body>
     <!-- Landing Page -->
@@ -101,25 +107,25 @@
                 <button class="btn btn-primary btn-sm" onclick="showUpgradeModal()" style="width:100%; margin-top:8px;">Upgrade to PRO</button>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item active" data-page="dashboard">
+                <li class="nav-item active" onclick="showPage('dashboard')">
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Dashboard</span>
                 </li>
-                <li class="nav-item" data-page="create">
-                    <span class="nav-icon">➕</span>
-                    <span class="nav-label">New Invoice</span>
-                </li>
-                <li class="nav-item" data-page="invoices">
-                    <span class="nav-icon">📄</span>
+                <li class="nav-item" onclick="showPage('invoices')">
+                    <span class="nav-icon">📜</span>
                     <span class="nav-label">Invoices</span>
                 </li>
-                <li class="nav-item" data-page="clients">
+                <li class="nav-item" onclick="showPage('clients')">
                     <span class="nav-icon">👥</span>
                     <span class="nav-label">Clients</span>
                 </li>
-                <li class="nav-item" data-page="settings">
+                <li class="nav-item" onclick="showPage('settings')">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Settings</span>
+                </li>
+                <li class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff4d4d;">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-label">Logout</span>
                 </li>
             </ul>
             <div class="sidebar-footer">
@@ -375,6 +381,34 @@
                     <h3 style="color: var(--accent); font-size: 28px;">$9<span style="font-size: 14px; color: var(--text-secondary)">/month</span></h3>
                 </div>
                 <button class="btn btn-primary btn-xl" style="width: 100%;" onclick="alert('Stripe Integration Pending - You will be redirected to checkout')">Upgrade Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="modal">
+        <div class="modal-content auth-card">
+            <div class="auth-header">
+                <h2 id="authTitle">Welcome Back</h2>
+                <p id="authSubtitle">Please enter your details to continue</p>
+            </div>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label>Full Name</label>
+                    <input type="text" id="authName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="name@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="authBtn">Login</button>
+            </form>
+            <div class="auth-footer">
+                <p id="authSwitchText">Don't have an account? <a href="#" onclick="toggleAuthMode()">Register</a></p>
             </div>
         </div>
     </div>
