@@ -188,7 +188,7 @@ function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     
-    const pageElement = document.getElementById(pageId + 'Page');
+    const pageElement = document.getElementById('page-' + pageId);
     if (pageElement) pageElement.classList.add('active');
     
     // Support both data-page and onclick bindings for active state
