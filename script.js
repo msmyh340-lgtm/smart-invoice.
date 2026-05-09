@@ -94,7 +94,18 @@ async function fetchInvoices() {
         const res = await fetch(`${API_URL}/api/invoices`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        invoices = await res.json();
+        const data = await res.json();
+        
+        // Handle invalid token or expired session
+        if (data.error) {
+            console.error('API Error:', data.error);
+            if (data.error.includes('token') || data.error.includes('Auth')) {
+                logout(); // Force logout if token is invalid
+            }
+            return;
+        }
+        
+        invoices = Array.isArray(data) ? data : [];
         updateDashboardStats();
         renderRecentInvoices();
         renderAllInvoices();
@@ -152,17 +163,20 @@ function enterApp() {
     setTimeout(() => {
         landing.style.display = 'none';
         checkAuth();
+        if (token) initApp();
     }, 300);
 }
 
 function initApp() {
+    showPage('dashboard'); // <-- FIX: Show dashboard by default
     updateSidebarUser();
     fetchInvoices();
     if(document.querySelectorAll('#invoiceItems tr').length === 0) addItem();
 }
 
 function initNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
+    // Kept for backward compatibility if data-page is used
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
         item.onclick = () => {
             const page = item.getAttribute('data-page');
             if (page) showPage(page);
@@ -174,9 +188,18 @@ function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     
-    document.getElementById(pageId + 'Page').classList.add('active');
-    const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
-    if (navItem) navItem.classList.add('active');
+    const pageElement = document.getElementById(pageId + 'Page');
+    if (pageElement) pageElement.classList.add('active');
+    
+    // Support both data-page and onclick bindings for active state
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${pageId}'`)) {
+            item.classList.add('active');
+        } else if (item.getAttribute('data-page') === pageId) {
+            item.classList.add('active');
+        }
+    });
 }
 
 // ===== INVOICE MANAGEMENT =====
