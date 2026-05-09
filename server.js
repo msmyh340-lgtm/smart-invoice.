@@ -42,6 +42,19 @@ db.serialize(() => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`);
+
+    // Expenses Table
+    db.run(`CREATE TABLE IF NOT EXISTS expenses (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER,
+        title TEXT,
+        category TEXT,
+        amount REAL,
+        currency TEXT,
+        date TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`);
 });
 
 // ===== AUTH MIDDLEWARE =====
@@ -119,6 +132,27 @@ app.get('/api/invoices', authenticateToken, (req, res) => {
         // Parse the JSON data string back into an object
         const invoices = rows.map(r => JSON.parse(r.data));
         res.json(invoices);
+    });
+});
+
+// ===== EXPENSE ROUTES =====
+app.post('/api/expenses', authenticateToken, (req, res) => {
+    const exp = req.body;
+    const userId = req.user.id;
+    
+    db.run('INSERT INTO expenses (id, user_id, title, category, amount, currency, date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [exp.id, userId, exp.title, exp.category, exp.amount, exp.currency, exp.date],
+        (err) => {
+            if (err) return res.status(500).json({ error: 'Failed to save expense' });
+            res.json({ success: true, message: 'Expense saved' });
+        }
+    );
+});
+
+app.get('/api/expenses', authenticateToken, (req, res) => {
+    db.all('SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC', [req.user.id], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(rows);
     });
 });
 

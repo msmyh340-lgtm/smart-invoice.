@@ -2,6 +2,7 @@
 let currentUser = JSON.parse(localStorage.getItem('smart_user')) || null;
 let token = localStorage.getItem('smart_token') || null;
 let invoices = [];
+let expenses = [];
 let settings = JSON.parse(localStorage.getItem('smart_settings_en')) || { name: '', email: '', phone: '', address: '' };
 
 const currencySymbols = { 'USD': '$', 'SAR': 'SAR', 'AED': 'AED', 'EUR': '€', 'GBP': '£' };
@@ -115,6 +116,21 @@ async function fetchInvoices() {
     }
 }
 
+async function fetchExpenses() {
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_URL}/api/expenses`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        expenses = Array.isArray(data) ? data : [];
+        renderExpenses();
+        updateDashboardStats();
+    } catch (err) {
+        console.error('Expense fetch error:', err);
+    }
+}
+
 async function apiSaveInvoice(invoiceData) {
     try {
         const res = await fetch(`${API_URL}/api/invoices`, {
@@ -171,6 +187,7 @@ function initApp() {
     showPage('dashboard'); // <-- FIX: Show dashboard by default
     updateSidebarUser();
     fetchInvoices();
+    fetchExpenses();
     if(document.querySelectorAll('#invoiceItems tr').length === 0) addItem();
 }
 
@@ -316,14 +333,18 @@ function updateSidebarUser() {
 
 // ===== RENDER =====
 function updateDashboardStats() {
-    let rev = 0, pend = 0, paid = 0;
+    let rev = 0, pend = 0, paid = 0, totalExp = 0;
     invoices.forEach(i => {
         if(i.status === 'paid') { paid++; rev += i.grandTotal; }
         else { pend++; }
     });
+    expenses.forEach(e => {
+        totalExp += e.amount;
+    });
+    
     document.getElementById('totalRevenue').textContent = formatMoney(rev);
-    document.getElementById('pendingInvoices').textContent = pend;
-    document.getElementById('paidInvoices').textContent = paid;
+    document.getElementById('totalExpensesAmount').textContent = formatMoney(totalExp);
+    document.getElementById('netProfitAmount').textContent = formatMoney(rev - totalExp);
 }
 
 function renderRecentInvoices() {
@@ -365,6 +386,56 @@ function updateLimits() {
     const count = invoices.length;
     const left = Math.max(0, 3 - count);
     document.getElementById('freeInvoicesLeft').textContent = left;
+}
+
+// ===== EXPENSES =====
+function showExpenseModal() { document.getElementById('expenseModal').style.display = 'flex'; }
+function hideExpenseModal() { document.getElementById('expenseModal').style.display = 'none'; }
+
+async function saveExpense(e) {
+    e.preventDefault();
+    const exp = {
+        id: 'EXP-' + Date.now(),
+        title: document.getElementById('expTitle').value,
+        category: document.getElementById('expCategory').value,
+        amount: parseFloat(document.getElementById('expAmount').value),
+        currency: 'USD',
+        date: document.getElementById('expDate').value
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/api/expenses`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(exp)
+        });
+        if (res.ok) {
+            showToast('Expense logged!');
+            fetchExpenses();
+            hideExpenseModal();
+            document.getElementById('expenseForm').reset();
+        }
+    } catch (err) {
+        showToast('Failed to log expense');
+    }
+}
+
+function renderExpenses() {
+    const tbody = document.getElementById('expensesList');
+    tbody.innerHTML = '';
+    expenses.forEach(exp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${exp.date}</td>
+            <td>${exp.title}</td>
+            <td><span class="status-badge">${exp.category}</span></td>
+            <td style="color: #ff4d4d;">-${formatMoney(exp.amount, exp.currency)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 // ===== MODALS & UI =====
