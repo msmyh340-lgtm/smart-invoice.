@@ -58,7 +58,7 @@ async function handleAuth(e) {
         localStorage.setItem('smart_token', token);
         localStorage.setItem('smart_user', JSON.stringify(currentUser));
         
-        document.getElementById('authModal').style.display = 'none';
+        document.getElementById('authModal').classList.remove('active');
         document.getElementById('appContainer').style.display = 'flex';
         initApp();
         showToast('Successfully logged in!');
@@ -80,10 +80,10 @@ function logout() {
 function checkAuth() {
     if (!token) {
         document.getElementById('appContainer').style.display = 'none';
-        document.getElementById('authModal').style.display = 'flex';
+        document.getElementById('authModal').classList.add('active');
         return false;
     }
-    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('authModal').classList.remove('active');
     document.getElementById('appContainer').style.display = 'flex';
     return true;
 }
@@ -389,8 +389,8 @@ function updateLimits() {
 }
 
 // ===== EXPENSES =====
-function showExpenseModal() { document.getElementById('expenseModal').style.display = 'flex'; }
-function hideExpenseModal() { document.getElementById('expenseModal').style.display = 'none'; }
+function showExpenseModal() { document.getElementById('expenseModal').classList.add('active'); }
+function hideExpenseModal() { document.getElementById('expenseModal').classList.remove('active'); }
 
 async function saveExpense(e) {
     e.preventDefault();
@@ -439,8 +439,10 @@ function renderExpenses() {
 }
 
 // ===== MODALS & UI =====
-function showUpgradeModal() { document.getElementById('upgradeModal').style.display = 'flex'; }
-function hideUpgradeModal() { document.getElementById('upgradeModal').style.display = 'none'; }
+function showUpgradeModal() { document.getElementById('upgradeModal').classList.add('active'); }
+function hideUpgradeModal() { document.getElementById('upgradeModal').classList.remove('active'); }
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 function viewInvoice(id) {
     const inv = invoices.find(i => i.id === id);
@@ -448,12 +450,10 @@ function viewInvoice(id) {
 }
 
 function showPreviewModal(inv) {
-    const modal = document.getElementById('previewModal');
-    const content = document.getElementById('previewContent');
+    const content = document.getElementById('invoicePreview');
     content.innerHTML = `<h3>Invoice #${inv.invoiceNumber}</h3><p>Client: ${inv.client.name}</p><p>Total: ${formatMoney(inv.grandTotal, inv.currency)}</p>`;
-    modal.style.display = 'flex';
+    document.getElementById('previewModal').classList.add('active');
 }
-function hidePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
 
 function showToast(msg) {
     const toast = document.createElement('div');
@@ -473,7 +473,10 @@ function initDateInputs() {
 }
 
 window.onclick = (event) => {
-    if (event.target.className === 'modal') {
-        event.target.style.display = 'none';
+    if (event.target.classList.contains('modal') && event.target.classList.contains('active')) {
+        event.target.classList.remove('active');
+    }
+    if (event.target.classList.contains('modal-overlay') && event.target.classList.contains('active')) {
+        event.target.classList.remove('active');
     }
 };
